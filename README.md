@@ -53,3 +53,81 @@ Introducing CrowePAY, an app-based solution akin to Apple Pay, streamlines expen
 - Direct Payment: Integration with corporate credit cards simplifies transactions, eliminating the need for manual receipt uploads.
 - Automated Reporting: Selecting projects triggers automatic weekly expense reports, enhancing efficiency and accuracy.
 - Verification Process: Utilizing Crowe's proprietary database, SQL codes cross-check receipt IDs to validate expense authenticity. An intuitive interface allows users and managers to verify, reject, or request additional information, ensuring thorough review and approval processes.
+
+
+
+
+### 
+In this code, the ExpenseCategory and ClientID are placeholders for the expense category and client ID from the receipt. The code calculates the minimum and maximum total amounts for unflagged receipts for the same type of purchase and client, and then checks if the total amount on the receipt is less than the minimum amount or more than 30% higher than the maximum amount. If so, it flags the receipt. 
+
+-- Create the CompanyReceipts table 
+CREATE TABLE CompanyReceipts ( 
+    ReceiptID INT PRIMARY KEY, 
+    TotalAmount DECIMAL(10, 2), 
+    UserID INT, 
+    Status VARCHAR(50) 
+); 
+ 
+-- Create the UserReceipts table 
+CREATE TABLE UserReceipts ( 
+    ReceiptID INT PRIMARY KEY, 
+    TotalAmount DECIMAL(10, 2), 
+    UserID INT 
+); 
+ 
+-- Insert some randomized values into the CompanyReceipts table 
+INSERT INTO CompanyReceipts (ReceiptID, TotalAmount, UserID, Status) 
+VALUES  
+    (1, ROUND(RAND() * 100, 2), FLOOR(RAND() * 10) + 1, 'Unflagged'), 
+    (2, ROUND(RAND() * 100, 2), FLOOR(RAND() * 10) + 1, 'Unflagged'), 
+    (3, ROUND(RAND() * 100, 2), FLOOR(RAND() * 10) + 1, 'Unflagged'); 
+ 
+-- Insert some randomized values into the UserReceipts table 
+INSERT INTO UserReceipts (ReceiptID, TotalAmount, UserID) 
+VALUES  
+    (1, ROUND(RAND() * 100, 2), FLOOR(RAND() * 10) + 1), 
+    (2, ROUND(RAND() * 100, 2), FLOOR(RAND() * 10) + 1), 
+    (3, ROUND(RAND() * 100, 2), FLOOR(RAND() * 10) + 1); 
+
+ 
+
+-- Checking receipt ID against out own DB to patch fraud risk areas 
+
+UPDATE CompanyReceipts  
+SET Status = CASE  
+    -- Check if the receipt has already been submitted by the user  
+    WHEN EXISTS (  
+        SELECT 1  
+        FROM UserReceipts U  
+        WHERE U.ReceiptID = :ReceiptID AND U.ReceiptID = CompanyReceipts.ReceiptID  
+    ) THEN 'Flagged'  
+    -- Check if the total amount on the receipt has been altered  
+    WHEN EXISTS (  
+        SELECT 1  
+        FROM UserReceipts U  
+        WHERE U.ReceiptID = :ReceiptID AND U.TotalAmount != :TotalAmount AND U.ReceiptID = CompanyReceipts.ReceiptID  
+    ) THEN 'Flagged'  
+    -- Check if multiple people are trying to submit the same receipt  
+    WHEN EXISTS (  
+        SELECT 1  
+        FROM UserReceipts U  
+        WHERE U.ReceiptID = :ReceiptID AND U.UserID != :UserID AND U.ReceiptID = CompanyReceipts.ReceiptID  
+    ) THEN 'Flagged'  
+     -- Check if the total amount is outside the range of amounts for similar receipt quantities within Crowe’s DB  
+
+    WHEN EXISTS ( 
+        SELECT 1 
+        FROM ( 
+            SELECT MIN(TotalAmount) as min_amount, MAX(TotalAmount) as max_amount 
+            FROM CompanyReceipts 
+            WHERE ExpenseCategory = :ExpenseCategory 
+            AND ClientID = :ClientID 
+            AND Status = 'Unflagged' 
+            AND ReceiptID != :ReceiptID 
+        ) B 
+        WHERE :TotalAmount > 1.2 * B.max_amount 
+    ) THEN 'Flagged' 
+    -- If none of the above conditions are met, keep the current status  
+    ELSE CompanyReceipts.Status  
+END  
+WHERE ReceiptID = :ReceiptID; 
