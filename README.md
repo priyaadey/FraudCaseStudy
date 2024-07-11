@@ -20,11 +20,11 @@ This is a mock database that can be viewed as either an extension of Workday's c
 ## Financial Fraud Detection 
 
 ### PROBLEM STATEMENT 
-• The problem at hand involves the manipulation of sales figures, overstatement of assets, accounts receivable, and concealment within financial statements. These fraudulent activities undermine the accuracy and integrity of financial reporting, posing significant risks to organizational  transparency and compliance. 
+- The problem at hand involves the manipulation of sales figures, overstatement of assets, accounts receivable, and concealment within financial statements. These fraudulent activities undermine the accuracy and integrity of financial reporting, posing significant risks to organizational  transparency and compliance. 
 ### RESEARCH INSIGHTS
-• Existing methods rely on predefined rules and human supervision, limiting effectiveness against evolving fraud schemes and analyzing large volumes of unstructured data.
+- Existing methods rely on predefined rules and human supervision, limiting effectiveness against evolving fraud schemes and analyzing large volumes of unstructured data.
 ### PROPOSED SOLUTION
-• Implementing Machine Learning (ML) algorithms to: 
+- Implementing Machine Learning (ML) algorithms to: 
   o Adaptability: ML algorithms continuously learn from historical data to detect new fraud patterns without relying solely on predefined rules. 
   o Enhanced Analysis: AI capabilities extend to analyzing unstructured data formats like images and PDFs, significantly increasing the scope and depth of fraud detection.  
   o Scalability: Addressing the limitation of smaller data sample sizes with ML enables more comprehensive fraud analysis.
