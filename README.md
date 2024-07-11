@@ -51,5 +51,6 @@ This is a mock database that can be viewed as either an extension of Workday's c
 • Introducing CrowePAY, an app-based solution akin to Apple Pay, streamlines expense submission and verification processes.
 ### KEY FEATURES
   o Direct Payment: Integration with corporate credit cards simplifies transactions, eliminating the need for manual receipt uploads.
+  
   o Automated Reporting: Selecting projects triggers automatic weekly expense reports, enhancing efficiency and accuracy.
   o Verification Process: Utilizing Crowe's proprietary database, SQL codes cross-check receipt IDs to validate expense authenticity. An intuitive interface allows users and managers to verify, reject, or request additional information, ensuring thorough review and approval processes.
