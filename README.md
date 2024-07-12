@@ -95,24 +95,31 @@ VALUES
 
 UPDATE CompanyReceipts  
 SET Status = CASE  
-    -- Check if the receipt has already been submitted by the user  
+
+    -- Check if the receipt has already been submitted by the user 
+    
     WHEN EXISTS (  
         SELECT 1  
         FROM UserReceipts U  
         WHERE U.ReceiptID = :ReceiptID AND U.ReceiptID = CompanyReceipts.ReceiptID  
     ) THEN 'Flagged'  
-    -- Check if the total amount on the receipt has been altered  
+    
+    -- Check if the total amount on the receipt has been altered
+    
     WHEN EXISTS (  
         SELECT 1  
         FROM UserReceipts U  
         WHERE U.ReceiptID = :ReceiptID AND U.TotalAmount != :TotalAmount AND U.ReceiptID = CompanyReceipts.ReceiptID  
     ) THEN 'Flagged'  
+    
     -- Check if multiple people are trying to submit the same receipt  
+    
     WHEN EXISTS (  
         SELECT 1  
         FROM UserReceipts U  
         WHERE U.ReceiptID = :ReceiptID AND U.UserID != :UserID AND U.ReceiptID = CompanyReceipts.ReceiptID  
     ) THEN 'Flagged'  
+    
      -- Check if the total amount is outside the range of amounts for similar receipt quantities within Crowe’s DB  
 
     WHEN EXISTS ( 
@@ -127,7 +134,9 @@ SET Status = CASE
         ) B 
         WHERE :TotalAmount > 1.2 * B.max_amount 
     ) THEN 'Flagged' 
+    
     -- If none of the above conditions are met, keep the current status  
+    
     ELSE CompanyReceipts.Status  
 END  
 WHERE ReceiptID = :ReceiptID; 
